@@ -1,0 +1,12 @@
+---
+- name: Run reddit app in docker
+  hosts: docker
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: "Run docker container"
+      docker_container:
+        name: reddit-site
+        image: avolchkov/otus-reddit:1.0
+        ports:
+          - 9292:9292
