@@ -1,0 +1,4 @@
+project             = "infra-infra"
+public_key_path     = "/dev/null"
+disk_image          = "super_image"
+provisioner_ssh_key = "/path/to/private/key"
