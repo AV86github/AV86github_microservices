@@ -68,3 +68,24 @@ AV86github microservices repository
     ```
     docker run --rm -i hadolint/hadolint < Dockerfile
     ```
+
+Лекция 16. Домашнее задание
+===========================
+
+Практика работы с **docker network**, **docker-compose**. Было сделано:
+1. Изучен механизм работы docker сетей:
+    * None
+    * host
+    * bridge
+1. Микросервисы приложения разбиты по разным подсетям - *fornt*, *back*
+1. Приложение запущено через **docker-compose** (конфигурация описывается в *docker-compose.yml*, переменные в *.env*)
+1. При именовании объектов docker (container, network, etc) *docker-compose* в качестве префикса использует название проекта:
+    * По уолмчанию - имя папки, в которой лежит конфигурационный файл.
+    * Можно задать ключем -P
+        ```
+        docker-copmpose -P ProjectName -f config_faile up -d
+        ```
+1. Выполнено дополнительное задание - написан файл **docker-compose.override.yml** для переопределения части параметров. Проверить корректность можно командой:
+    ```
+    docker-compose config
+    ```
