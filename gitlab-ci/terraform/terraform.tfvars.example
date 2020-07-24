@@ -1,0 +1,3 @@
+project             = "docker-docker"
+public_key_path     = "/dev/null"
+disk_image          = "super_image"
