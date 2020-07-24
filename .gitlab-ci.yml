@@ -5,7 +5,7 @@ stages:
   - test
   - review
   - stage
-  - producton
+  - production
 
 variables:
   DATABASE_URL: 'mongodb://mongo/user_posts'
