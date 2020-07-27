@@ -20,7 +20,7 @@ before_script:
   - cd reddit
   - bundle install
 
-build_job:
+.build_job:
   stage: build
   image: docker:stable-dind
   before_script:
@@ -51,8 +51,14 @@ deploy_dev_job:
     - echo ${DOCKER_HUB_PASS} | docker login -u ${DOCKER_HUB_LOGIN} --password-stdin
   script:
     - echo 'Deploy'
-    - docker pull ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}
-    - docker run ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}
+    - docker-machine create \
+        --driver generic \
+        --generic-ip-address=${DOCKER_GCP_HOST} \
+        --generic-ssh-key ${DOCKER_MACHINE_CERT} \
+        docker-gcp
+    - docker-machine ls
+    #- docker pull ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}
+    #- docker run -d ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}
   environment:
     name: dev
     url: http://dev.example.com
