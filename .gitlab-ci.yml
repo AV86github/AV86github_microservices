@@ -18,7 +18,7 @@ build_job:
   stage: build
   image: docker:stable-dind
   before_script:
-    - docker login -u ${DOCKER_HUB_LOGIN} -P ${DOCKER_HUB_PASS}
+    - docker login -u ${DOCKER_HUB_LOGIN} -p ${DOCKER_HUB_PASS}
   script:
     - echo 'Building'
     - docker build -t ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA} ./docker-monolith
