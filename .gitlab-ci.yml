@@ -1,7 +1,7 @@
 image: ruby:2.4.2
 
-#services:
-#  - docker:stable-dind
+services:
+  - docker:stable-dind
 
 stages:
   - build
@@ -45,8 +45,14 @@ build_job:
 
 deploy_dev_job:
   stage: review
+  image: docker:stable-dind
+  before_script:
+    - docker info
+    - echo ${DOCKER_HUB_PASS} | docker login -u ${DOCKER_HUB_LOGIN} --password-stdin
   script:
     - echo 'Deploy'
+    - docker pull ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}
+    - docker run ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}
   environment:
     name: dev
     url: http://dev.example.com
