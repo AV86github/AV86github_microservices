@@ -22,7 +22,7 @@ before_script:
 
 build_job:
   stage: build
-  #image: docker:stable-dind
+  image: docker:stable-dind
   before_script:
     - docker info
     - echo ${DOCKER_HUB_PASS} | docker login -u ${DOCKER_HUB_LOGIN} --password-stdin
