@@ -15,3 +15,8 @@
   template:
     src: compose.yml.j2
     dest: /srv/gitlab/docker-compose.yml
+
+- name: Start GitLab
+  shell:
+    cmd: docker-compose up -d
+    chdir: /srv/gitlab

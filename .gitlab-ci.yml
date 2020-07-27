@@ -16,17 +16,21 @@ before_script:
 
 build_job:
   stage: build
+  before_script:
+    - docker login -u ${DOCKER_HUB_LOGIN} -P ${DOCKER_HUB_PASS}
   script:
     - echo 'Building'
+    - docker build -t ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA} ./docker-monolith
+    - docker push ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}
 
-test_unit_job:
+.test_unit_job:
   stage: test
   services:
     - mongo:latest
   script:
     - ruby simpletest.rb
 
-test_integration_job:
+.test_integration_job:
   stage: test
   script:
     - echo 'Testing 2'
@@ -39,7 +43,7 @@ deploy_dev_job:
     name: dev
     url: http://dev.example.com
 
-branch review:
+.branch review:
   stage: review
   script: echo "Deploy to $CI_ENVIRONMENT_SLUG"
   environment:
@@ -50,7 +54,7 @@ branch review:
   except:
     - master
 
-staging:
+.staging:
   stage: stage
   when: manual
   script:
@@ -62,7 +66,7 @@ staging:
   only:
     - /^\d+\.\d+\.\d+/
 
-production:
+.production:
   stage: production
   when: manual
   only:
