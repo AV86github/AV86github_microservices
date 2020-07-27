@@ -50,15 +50,15 @@ deploy_dev_job:
     - docker info
     - echo ${DOCKER_HUB_PASS} | docker login -u ${DOCKER_HUB_LOGIN} --password-stdin
     - base=https://github.com/docker/machine/releases/download/v0.16.0 &&
-        curl -L $base/docker-machine-$(uname -s)-$(uname -m) >/tmp/docker-machine &&
-        sudo mv /tmp/docker-machine /usr/local/bin/docker-machine &&
+        wget $base/docker-machine-$(uname -s)-$(uname -m) >/tmp/docker-machine &&
+        mv /tmp/docker-machine /usr/local/bin/docker-machine &&
         chmod +x /usr/local/bin/docker-machine
   script:
     - echo 'Deploy'
-    - docker-machine create \
-        --driver generic \
-        --generic-ip-address=${DOCKER_GCP_HOST} \
-        --generic-ssh-key ${DOCKER_MACHINE_CERT} \
+    - docker-machine create
+        --driver generic
+        --generic-ip-address=${DOCKER_GCP_HOST}
+        --generic-ssh-key ${DOCKER_MACHINE_CERT}
         docker-gcp
     - docker-machine ls
     #- docker pull ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}
