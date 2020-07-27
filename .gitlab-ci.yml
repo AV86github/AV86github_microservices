@@ -16,6 +16,7 @@ before_script:
 
 build_job:
   stage: build
+  image: docker:stable-dind
   before_script:
     - docker login -u ${DOCKER_HUB_LOGIN} -P ${DOCKER_HUB_PASS}
   script:
