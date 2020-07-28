@@ -15,6 +15,7 @@ groups:
   #app: "'-app' in (tags['items']|join(' '))"
   #db: "'-db' in (tags['items']|join(' '))"
   gitlab: "'gitlab' in name"
+  gitlab_runners: "'gitlab' in name"
 compose:
   ansible_host: networkInterfaces[0].accessConfigs[0].natIP
 filters: []
