@@ -61,8 +61,10 @@ deploy_dev_job:
         --generic-ssh-key ${DOCKER_MACHINE_CERT}
         docker-gcp
     - docker-machine ls
-    - docker pull ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}
-    - docker run -d ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}
+    - docker pull ${DOCKER_HUB_LOGIN}/reddit:gitlab-ci-1_66b7b9c2
+    - docker run -d ${DOCKER_HUB_LOGIN}/reddit:gitlab-ci-1_66b7b9c2
+    #- docker pull ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}
+    #- docker run -d ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}
   environment:
     name: dev
     url: http://dev.example.com
