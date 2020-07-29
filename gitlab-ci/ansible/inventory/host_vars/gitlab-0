@@ -1,0 +1,26 @@
+---
+# runners for host gitlab-0
+# hierarchy - on host create N comtainers with gitlab-runner. in container register M runners
+containers:
+  - container_name: runner_container_1
+    image: gitlab/gitlab-runner:latest
+    runners:
+      - name: AV86 runner1
+        token: "{{ av86_project_token }}"
+        tags: "linux,docker"
+        runner_image: "alpine:latest"
+      - name: AV86 runner2
+        token: "{{ av86_project_token }}"
+        tags: "linux,docker"
+        runner_image: "alpine:latest"
+  - container_name: shared-runners
+    image: gitlab/gitlab-runner:latest
+    runners:
+      - name: shared runner 1
+        token: "{{ shared_token }}"
+        tags: "linux,docker,shared"
+        runner_image: "alpine:latest"
+      - name: shared runner 2
+        token: "{{ shared_token }}"
+        tags: "linux,docker,shared"
+        runner_image: "alpine:latest"

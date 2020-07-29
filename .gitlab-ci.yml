@@ -1,0 +1,104 @@
+image: ruby:2.4.2
+
+services:
+  - docker:stable-dind
+
+stages:
+  - build
+  - test
+  - review
+  - stage
+  - production
+
+variables:
+  DATABASE_URL: 'mongodb://mongo/user_posts'
+  # for performance purpose
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
+before_script:
+  - cd reddit
+  - bundle install
+
+.build_job:
+  stage: build
+  image: docker:stable-dind
+  before_script:
+    - docker info
+    - echo ${DOCKER_HUB_PASS} | docker login -u ${DOCKER_HUB_LOGIN} --password-stdin
+  script:
+    - echo 'Building'
+    - docker build -t ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA} ./docker-monolith
+    - docker push ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}
+
+.test_unit_job:
+  stage: test
+  services:
+    - mongo:latest
+  script:
+    - ruby simpletest.rb
+
+.test_integration_job:
+  stage: test
+  script:
+    - echo 'Testing 2'
+
+deploy_dev_job:
+  stage: review
+  image: docker:stable-dind
+  before_script:
+    - docker info
+    - echo ${DOCKER_HUB_PASS} | docker login -u ${DOCKER_HUB_LOGIN} --password-stdin
+    - base=https://github.com/docker/machine/releases/download/v0.16.0 &&
+        wget $base/docker-machine-$(uname -s)-$(uname -m) >/tmp/docker-machine &&
+        mv /tmp/docker-machine /usr/local/bin/docker-machine &&
+        chmod +x /usr/local/bin/docker-machine
+  script:
+    - echo 'Deploy'
+    - docker-machine create
+        --driver generic
+        --generic-ip-address=${DOCKER_GCP_HOST}
+        --generic-ssh-key ${DOCKER_MACHINE_CERT}
+        docker-gcp
+    - docker-machine ls
+    - docker pull ${DOCKER_HUB_LOGIN}/reddit:gitlab-ci-1_66b7b9c2
+    - docker run -d ${DOCKER_HUB_LOGIN}/reddit:gitlab-ci-1_66b7b9c2
+    #- docker pull ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}
+    #- docker run -d ${DOCKER_HUB_LOGIN}/reddit:${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}
+  environment:
+    name: dev
+    url: http://dev.example.com
+
+.branch review:
+  stage: review
+  script: echo "Deploy to $CI_ENVIRONMENT_SLUG"
+  environment:
+    name: branch/$CI_COMMIT_REF_NAME
+    url: http://$CI_ENVIRONMENT_SLUG.example.com
+  only:
+    - branches
+  except:
+    - master
+
+.staging:
+  stage: stage
+  when: manual
+  script:
+    - echo 'Deploy'
+  environment:
+    name: stage
+    url: https://beta.example.com
+  when: manual
+  only:
+    - /^\d+\.\d+\.\d+/
+
+.production:
+  stage: production
+  when: manual
+  only:
+    - /^\d+\.\d+\.\d+/
+  script:
+    - echo 'Deploy'
+  environment:
+    name: production
+    url: https://example.com

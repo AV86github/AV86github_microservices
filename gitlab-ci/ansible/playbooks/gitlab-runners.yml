@@ -1,0 +1,68 @@
+---
+- name: Create users
+  hosts: gitlab_runners
+  become: true
+  gather_facts: no
+  tasks:
+    - debug: var=containers
+      tags: debug
+
+    - name: loop over containers
+      debug:
+        msg: "{{ item.container_name }}"
+      loop: "{{ containers }}"
+      tags: debug
+
+    - name: crate config dirs for every runner
+      file:
+        path: /srv/gitlab-runner/config/{{ item.container_name }}
+        state: directory
+      loop: "{{ containers }}"
+      loop_control:
+        label: "{{ item.container_name }}"
+
+    - name: Create containers
+      docker_container:
+        image: "{{ item.image }}"
+        name: "{{ item.container_name }}"
+        restart_policy: always
+        detach: yes
+        privileged: yes
+        volumes:
+          - /srv/gitlab-runner/config/{{ item.container_name }}:/etc/gitlab-runner
+          - /var/run/docker.sock:/var/run/docker.sock
+      loop: "{{ containers }}"
+      loop_control:
+        label: "{{ item.container_name }}"
+
+    - name: debug
+      debug:
+        msg: "{{ item.0.image }}"
+      with_subelements:
+        - "{{ containers }}"
+        - runners
+      tags: debug
+
+    - name: register runner status
+      shell:  if ! grep -q "{{ item.1.name }}" /srv/gitlab-runner/config/{{ item.0.container_name }}/config.toml; then
+                docker exec {{ item.0.container_name }}
+                gitlab-runner register
+                  --non-interactive
+                  --url "{{ gitlab_addr }}"
+                  --registration-token "{{ item.1.token }}"
+                  --executor "docker"
+                  --docker-image "{{ item.1.runner_image }}"
+                  --description "{{ item.1.name }}"
+                  --tag-list "{{ item.1.tags }}"
+                  --run-untagged="true"
+                  --docker-privileged="true"
+                  --locked="false"
+                  --access-level="not_protected";
+              fi;
+      register: runners_status
+      with_subelements:
+        - "{{ containers }}"
+        - runners
+      tags: debug
+
+    - debug: var=runners_status

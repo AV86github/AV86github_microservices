@@ -89,3 +89,38 @@ AV86github microservices repository
     ```
     docker-compose config
     ```
+
+Лекция 16. Домашнее задание
+===========================
+
+Практика работы с gitlab. В процессе сделано:
+1. Установлен **Gitlab**, пакет omnibus (использован готовый докер-образ). Для автоматической установки написан playbook:
+    ```
+    cd gitlab-ci/ansible
+    ansible-playbook playbooks/gitlab.yml
+    ```
+2. В отдельном docker конейнере запущен gitlab-runner
+    ```
+    gitlab-runner start
+    gitlab-runner register
+    ```
+3. Для тестирования ci\cd процессов в gitlab создан проект. В проекте настроено:
+    * динамические окружения
+    * stages для сборки, тестирования, деплоя
+    * push собранного образа в докер-хаб
+4. Выполнены дополнительные задания:
+    * сборка образа в gitlab, пуш на docker-hub
+    * образ поднимается на сервере с Gitlab. Можно настроить на отдельный сервер - через создание инфтрастуктуры (terraform, etc), можно использовать docker-machine в различных конфигурациях (driver - google, driver - generic), например:
+        ```
+        docker-machine create \
+            --driver generic \
+            --generic-ip-address=<your_ip> \
+            --generic-ssh-key <rsa_privat_key> \
+            generic_machine
+        ```
+    * интеграция со slack
+    * ansible playbook для понятия произвольного кол-ва раннеров
+        для машин с раннерами создается отдельная группа в инвентори - *gitlab_runners*, токены для регистрации раннеров в gitlab прописывыатся в **group_vars/gitlab_runners**, конфигурация раннеров (список докер контейнеров и список ранеров для каждого контейнера) прописываются в словаре - **host_vars/gitlab-0** (для каждого из хоста с ранерами)
+        ```
+        ansible-playbook playbooks/gitlab-runners.yml
+        ```
