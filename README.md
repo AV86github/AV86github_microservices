@@ -118,7 +118,7 @@ AV86github microservices repository
             --generic-ssh-key <rsa_privat_key> \
             generic_machine
         ```
-    * интеграция со slack
+    * интеграция со slack - https://app.slack.com/client/T6HR0TUP3/C01102JAS1J
     * ansible playbook для понятия произвольного кол-ва раннеров
         для машин с раннерами создается отдельная группа в инвентори - *gitlab_runners*, токены для регистрации раннеров в gitlab прописывыатся в **group_vars/gitlab_runners**, конфигурация раннеров (список докер контейнеров и список ранеров для каждого контейнера) прописываются в словаре - **host_vars/gitlab-0** (для каждого из хоста с ранерами)
         ```
