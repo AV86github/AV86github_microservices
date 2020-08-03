@@ -1,3 +1,0 @@
-install pip\pip3
-set locale in bashrc: export LC_ALL=c
-install docker SDK: pip install docker
