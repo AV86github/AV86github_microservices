@@ -146,3 +146,36 @@ AV86github microservices repository
 
 Dockerhub:
 https://hub.docker.com/search?q=avolchkov&type=image
+
+Лекция 19. Домашнее задание
+===========================
+
+Мониторинг инфраструктуры на основе Docker. Было сделано:
+1. Файл *docker-compose* разбит на 2 - *docker-compose.yml* (приложение reddit) и *docker-compose-monitoring.yml* (сервисы мониторинга)
+1. Настроен cAdvisor для сбора метрик с докер контейнеров.
+1. Для визуализации метрик настроена Grafana. В Grafana настроены как свои дашборды так и готовые (https://grafana.com/grafana/dashboards)
+1. Настроен alertmanager для отправки уведомлений в slack. (например alert о недоступности сервиса)
+1. Выполнено дополнительное задание 1:
+    * Все новые сервисы добавлены в **Makefile**
+        ```
+        make build_mon && make push_mon
+        ```
+    * Для включение сбора метрик с докер хоста запустить скрипт *docker/scripts/docker_metrics.sh*
+    * Настроен *telegraf* для сбора метрик докера.
+    * Для *alertmanager* настроена интеграция с email (gmail), добавлен новый алерт
+1. Выполнено дополнительное заданеи 2:
+    * Для grafana добавлен Provisioning в части dataSource и Dashboards
+    * Реализован сбор метрик со *stackdriver* - аутентификация legacy способом через google-scopes (необходимо задать при старте машины)
+        ```
+        --google-scopes "https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring"
+        ```
+1. Частично выполнено дополнительное задание 3:
+    * поднят кэширующий revers-proxy сервер *trickster* (значительно ускоряет работу с tsdb).
+
+DockerHub:
+https://hub.docker.com/u/avolchkov
+Slack:
+https://app.slack.com/client/T6HR0TUP3/C01102JAS1J
+Trickster:
+https://linora-solutions.nl/post/installing_and_configuring_trickster/
+https://github.com/tricksterproxy/trickster

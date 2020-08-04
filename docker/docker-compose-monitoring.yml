@@ -1,0 +1,164 @@
+version: '3.3'
+services:
+  prometheus:
+    image: ${USER_NAME}/prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention=1d'
+    extra_hosts:
+      - "dockerhost:172.17.0.1"
+    networks:
+      back_net:
+        aliases:
+          - prom_back
+      fornt_net:
+        aliases:
+          - prom_front
+  node-exporter:
+    image: prom/node-exporter:v0.15.2
+    user: root
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
+    networks:
+      back_net:
+        aliases:
+          - node_back
+      fornt_net:
+        aliases:
+          - node_front
+
+  mongo_exporter:
+    image: bitnami/mongodb-exporter:latest
+    environment:
+      - MONGODB_URI=mongodb://post_db:27017
+    networks:
+      back_net:
+        aliases:
+          - mongo_exp_back
+
+  blackbox_exporter:
+    image: ${USER_NAME}/blackbox:latest
+    ports:
+      - '9115:9115'
+    command:
+      - '--config.file=/config/blackbox.yml'
+    networks:
+      back_net:
+      fornt_net:
+
+  cloudprober:
+    image: ${USER_NAME}/cloudprober:latest
+    command:
+      - '--config_file=/etc/cloudprober.cfg'
+    networks:
+      back_net:
+      fornt_net:
+
+  cadvisor:
+    image: google/cadvisor:v0.29.0
+    volumes:
+      - '/:/rootfs:ro'
+      - '/var/run:/var/run:rw'
+      - '/sys:/sys:ro'
+      - '/var/lib/docker/:/var/lib/docker:ro'
+    ports:
+      - '8080:8080'
+    networks:
+      back_net:
+      fornt_net:
+
+  telegraf:
+    image: ${USER_NAME}/telegraf:latest
+    command:
+      - '--config=/etc/telegraf/telegraf.conf'
+    ports:
+      - '9273:9273'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      back_net:
+      fornt_net:
+
+  stackdriver:
+    image: prometheuscommunity/stackdriver-exporter:v0.10.0
+    ports:
+      - '9255:9255'
+    environment:
+      - STACKDRIVER_EXPORTER_GOOGLE_PROJECT_ID=docker-283909
+      - STACKDRIVER_EXPORTER_MONITORING_METRICS_TYPE_PREFIXES=compute.googleapis.com/instance/cpu,compute.googleapis.com/instance/disk
+    networks:
+      back_net:
+      fornt_net:
+
+  grafana:
+    image: avolchkov/grafana:latest
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=secret
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    networks:
+      back_net:
+      fornt_net:
+
+  alertmanager:
+    image: ${USER_NAME}/alertmanager:latest
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+    ports:
+      - 9093:9093
+    networks:
+      back_net:
+      fornt_net:
+
+  trickster:
+    image: ${USER_NAME}/trickster:latest
+    depends_on:
+      - prometheus
+      - grafana
+    ports:
+      - 8480:8480   # primary frontend proxy port (insecure)
+      - 8481:8481   # metrics port (insecure)
+      # - 8483:8483 # tls frontend proxy port, unused in this demo
+      - 8484:8484   # config reload port (insecure), exposed publicly for demonstration purposes only
+    volumes:
+      #- ./docker-compose-data/trickster-config:/etc/trickster
+      - .trickster_data:/data/trickster
+    networks:
+      back_net:
+      fornt_net:
+    restart: always
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  trickster_data:
+
+networks:
+  back_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.2.0/24
+  fornt_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.1.0/24

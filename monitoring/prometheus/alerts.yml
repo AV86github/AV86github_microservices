@@ -1,0 +1,19 @@
+groups:
+  - name: alert.rules
+    rules:
+    - alert: InstanceDown
+      expr: up == 0
+      for: 1m
+      labels:
+        severity: page
+      annotations:
+        description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute'
+        summary: 'Instance {{ $labels.instance }} down'
+    - alert: UI95Procentile
+      expr: histogram_quantile(0.95, sum(rate(ui_request_response_time_bucket{instance="ui:9292"}[5m])) by (le)) >0.04
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        description: 'High procentile - {{ $labels.severity}} alert'
+        summary: 'High 95 procentile on Instance {{ $labels.instance }} down'
