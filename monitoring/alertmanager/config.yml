@@ -1,0 +1,19 @@
+global:
+  slack_api_url: 'https://hooks.slack.com/services/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'
+  resolve_timeout: 1m
+
+route:
+  receiver: 'all-notifications'
+
+receivers:
+- name: 'all-notifications'
+  slack_configs:
+  - channel: '#anton-volchkov'
+  email_configs:
+  - to: email addr
+    from: mail addr
+    smarthost: smtp.gmail.com:587
+    auth_username: mail addr
+    auth_identity: mail addr
+    auth_password: app password
+    send_resolved: true

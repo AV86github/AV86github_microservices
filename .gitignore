@@ -16,4 +16,3 @@ vault.key
 .cache
 .pytest_cache
 .env
-monitoring/alertmanager/config.yml
