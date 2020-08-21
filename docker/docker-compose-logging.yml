@@ -1,0 +1,52 @@
+version: '3.3'
+services:
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      back_net:
+      fornt_net:
+
+  fluentd:
+    image: ${USER_NAME}/fluentd
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    networks:
+      back_net:
+      fornt_net:
+
+  elasticsearch:
+    image: elasticsearch:7.4.0
+    expose:
+      - 9200
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+    networks:
+      back_net:
+      fornt_net:
+
+  kibana:
+    image: kibana:7.4.0
+    ports:
+      - "5601:5601"
+    networks:
+      back_net:
+      fornt_net:
+
+networks:
+  back_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.2.0/24
+  fornt_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.1.0/24
