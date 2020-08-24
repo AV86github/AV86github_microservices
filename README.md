@@ -200,3 +200,14 @@ https://github.com/tricksterproxy/trickster
         ...
         time.sleep(3)
         ```
+
+Лекция 21. Домашнее задание. Kubernetes-1. THW
+==============================================
+
+Установка kubernetes - the hard way.
+
+В рамках данного задания были вручную установлены и настроены все компоненты **k8s** в облаке *GCP*.
+
+Для установки через *ansible* можно использовать готовые репозитотрии:
+https://github.com/pythops/Kubernetes-the-hard-way-with-Ansible
+https://github.com/pythops/k8s_the_hard_way
