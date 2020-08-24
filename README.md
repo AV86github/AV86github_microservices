@@ -179,3 +179,24 @@ https://app.slack.com/client/T6HR0TUP3/C01102JAS1J
 Trickster:
 https://linora-solutions.nl/post/installing_and_configuring_trickster/
 https://github.com/tricksterproxy/trickster
+
+Лекция 20. Домашнее задание
+===========================
+
+Централизованный сбор логов. Визуализация в Kibana.
+
+1. Поднят ELK стэк (с использованием fluentd) для сбора лог сообщений с приложения *reddit*. Просмотр логов в *Kibana*
+    ```
+        docker-compose -f docker-compose-logging.yml up -d
+    ```
+1. С использованием grok шаблонов настроено отобраение неструктурированных логов
+1. Выполнено задание со звездочкой - разбор логов различных форматов.
+1. Поднята система трэсинга - **zipkin**
+1. На основе zipkin проанализировано версия приложения **reddit** с багом. Исправлено:
+    * В докер файле добавлены переменные среды с параметрами доступа к сервисам.
+    * В файле **post_app.py** для имитации задержки использован
+        ```
+        def find_post(id):
+        ...
+        time.sleep(3)
+        ```
