@@ -5,7 +5,7 @@ export USER_NAME=$(user)
 
 monitoring_dir = monitoring
 app_dir = src
-monitoring_services = prometheus blackbox cloudprober
+monitoring_services = prometheus blackbox cloudprober alertmanager telegraf grafana trickster
 app_services = ui comment post
 
 #Main goal
